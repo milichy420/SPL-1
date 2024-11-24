@@ -98,6 +98,35 @@ void Simulation::step()
     // Execute a single step of the simulation
     // This is a placeholder for actual step logic
     // ...
+
+    for (auto &plan : plans)
+    {
+        if (plan.getStatus() == PlanStatus::AVALIABLE)
+        {
+            for (int i = 0; i < plan.getSettlement().getType(); ++i)
+            {
+                // i am not sure what to do here: what is plan.step()? what is the other auto generated methods?
+
+                plan.step();
+
+                FacilityType nextFacility = plan.getSelectionPolicy()->selectFacility(facilitiesOptions);
+                plan.addFacility(nextFacility);
+            }
+            /* use selection policy to choose the next facility to build. */
+        }
+        for (auto &facility : plan.getUnderConstruction())
+        {
+            facility.step();
+            if (facility.getStatus() == FacilityStatus::OPERATIONAL)
+            {
+                plan.moveFacilityToOperational(facility);
+            }
+        }
+        if (plan.getUnderConstruction().length() == plan.getSettlement().getType())
+        {
+            plan.setStatus(PlanStatus::BUSY);
+        }
+    }
 }
 
 void Simulation::close()

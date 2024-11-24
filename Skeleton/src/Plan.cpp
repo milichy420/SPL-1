@@ -55,3 +55,30 @@ const string Plan::toString() const
     // Implement a string representation of the plan
     return "Plan ID: " + std::to_string(plan_id);
 }
+
+const Settlement Plan::getSettlement() const
+{
+    return settlement;
+}
+
+void Plan::moveFacilityToUnderConstruction(Facility *facility)
+{
+    underConstruction.add(facility);
+    facilities.erase(
+        remove(facilities.begin(), facilities.end(), facility),
+        facilities.end());
+
+    // Move a facility from operational to under construction
+    // Update scores accordingly
+}
+
+void Plan::moveFacilityToOperational(Facility *facility)
+{
+    facilities.add(facility);
+    underConstruction.erase(
+        remove(underConstruction.begin(), underConstruction.end(), facility),
+        underConstruction.end());
+
+    // Move a facility from under construction to operational
+    // Update scores accordingly
+}
