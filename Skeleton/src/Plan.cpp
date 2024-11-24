@@ -1,0 +1,57 @@
+#include "Plan.h"
+#include <iostream>
+
+Plan::Plan(const int planId, const Settlement &settlement, SelectionPolicy *selectionPolicy, const vector<FacilityType> &facilityOptions)
+    : plan_id(planId), settlement(settlement), selectionPolicy(selectionPolicy), facilityOptions(facilityOptions), status(PlanStatus::AVALIABLE), life_quality_score(0), economy_score(0), environment_score(0) {}
+
+const int Plan::getlifeQualityScore() const
+{
+    return life_quality_score;
+}
+
+const int Plan::getEconomyScore() const
+{
+    return economy_score;
+}
+
+const int Plan::getEnvironmentScore() const
+{
+    return environment_score;
+}
+
+void Plan::setSelectionPolicy(SelectionPolicy *selectionPolicy)
+{
+    this->selectionPolicy = selectionPolicy;
+}
+
+void Plan::step()
+{
+    // Implement the logic for a single step in the plan
+    // This might involve updating the status of facilities, scores, etc.
+}
+
+void Plan::printStatus()
+{
+    std::cout << "Plan ID: " << plan_id << std::endl;
+    std::cout << "Status: " << (status == PlanStatus::AVALIABLE ? "Available" : "Busy") << std::endl;
+    std::cout << "Life Quality Score: " << life_quality_score << std::endl;
+    std::cout << "Economy Score: " << economy_score << std::endl;
+    std::cout << "Environment Score: " << environment_score << std::endl;
+}
+
+const vector<Facility *> &Plan::getFacilities() const
+{
+    return facilities;
+}
+
+void Plan::addFacility(Facility *facility)
+{
+    facilities.push_back(facility);
+    // Update scores based on the new facility
+}
+
+const string Plan::toString() const
+{
+    // Implement a string representation of the plan
+    return "Plan ID: " + std::to_string(plan_id);
+}
