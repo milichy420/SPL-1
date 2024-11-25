@@ -30,6 +30,7 @@ void Simulation::start()
 void Simulation::addPlan(const Settlement &settlement, SelectionPolicy *selectionPolicy)
 {
     plans.emplace_back(planCounter++, settlement, selectionPolicy);
+    planCounter++;
 }
 
 void Simulation::addAction(BaseAction *action)
@@ -37,9 +38,9 @@ void Simulation::addAction(BaseAction *action)
     actionsLog.push_back(action);
 }
 
-bool Simulation::addSettlement(Settlement settlement)
+bool Simulation::addSettlement(Settlement *settlement)
 {
-    if (isSettlementExists(settlement.getName()))
+    if (isSettlementExists(settlement->getName()))
     {
         return false;
     }
