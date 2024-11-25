@@ -10,7 +10,7 @@ const FacilityType &NaiveSelection::selectFacility(const vector<FacilityType> &f
     {
         throw std::runtime_error("No facilities available for selection.");
     }
-    lastSelectedIndex = (lastSelectedIndex + 1) % facilitiesOptions.size();
+    lastSelectedIndex++;
     return facilitiesOptions[lastSelectedIndex];
 }
 
@@ -34,9 +34,25 @@ const FacilityType &BalancedSelection::selectFacility(const vector<FacilityType>
     {
         throw std::runtime_error("No facilities available for selection.");
     }
-    // Implement your balanced selection logic here
-    // For now, just return the first facility as a placeholder
-    return facilitiesOptions[0];
+
+    int minDistance = std::numeric_limits<int>::max();
+    size_t selectedIndex = 0;
+
+    for (size_t i = 0; i < facilitiesOptions.size(); ++i)
+    {
+        int life = facilitiesOptions[i].getLifeQualityScore() + LifeQualityScore;
+        int eco = facilitiesOptions[i].getEconomyScore() + EconomyScore;
+        int env = facilitiesOptions[i].getEnvironmentScore() + EnvironmentScore;
+        int distance = std::max({std::abs(life - eco), std::abs(life - env), std::abs(eco - env)});
+
+        if (distance < minDistance)
+        {
+            minDistance = distance;
+            selectedIndex = i;
+        }
+    }
+
+    return facilitiesOptions[selectedIndex];
 }
 
 const string BalancedSelection::toString() const
@@ -58,9 +74,20 @@ const FacilityType &EconomySelection::selectFacility(const vector<FacilityType> 
     {
         throw std::runtime_error("No facilities available for selection.");
     }
-    // Implement your economy-based selection logic here
-    // For now, just return the first facility as a placeholder
-    return facilitiesOptions[0];
+
+    int maxEconomyScore = std::numeric_limits<int>::min();
+    size_t selectedIndex = 0;
+
+    for (size_t i = 0; i < facilitiesOptions.size(); ++i)
+    {
+        if (facilitiesOptions[i].economyScore > maxEconomyScore)
+        {
+            maxEconomyScore = facilitiesOptions[i].getEconomyScore;
+            selectedIndex = i;
+        }
+    }
+
+    return facilitiesOptions[selectedIndex];
 }
 
 const string EconomySelection::toString() const
@@ -82,9 +109,11 @@ const FacilityType &SustainabilitySelection::selectFacility(const vector<Facilit
     {
         throw std::runtime_error("No facilities available for selection.");
     }
-    // Implement your sustainability-based selection logic here
-    // For now, just return the first facility as a placeholder
-    return facilitiesOptions[0];
+    std::vector<FacilityType> sortedFacilities = facilitiesOptions;
+    std::sort(sortedFacilities.begin(), sortedFacilities.end(), [](const FacilityType &a, const FacilityType &b)
+              { return a.getSustainabilityScore() > b.getSustainabilityScore(); });
+    lastSelectedIndex++;
+    return sortedFacilities.front();
 }
 
 const string SustainabilitySelection::toString() const

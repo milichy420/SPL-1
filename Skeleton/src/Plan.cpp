@@ -28,7 +28,7 @@ void Plan::step()
 {
     if (status == PlanStatus::AVALIABLE)
     {
-        while (underConstruction.length() <= settlement.getType())
+        while (underConstruction.size() <= settlement.getType())
         {
             FacilityType nextFacility = selectionPolicy->selectFacility(facilitiesOptions);
             underConstruction.push_back(nextFacility);
@@ -43,7 +43,7 @@ void Plan::step()
             moveFacilityToOperational(facility);
         }
     }
-    if (underConstruction.length() >= settlement.getType())
+    if (underConstruction.size() >= settlement.getType())
     {
         plan.setStatus(PlanStatus::BUSY);
     }
