@@ -26,8 +26,31 @@ void Plan::setSelectionPolicy(SelectionPolicy *selectionPolicy)
 
 void Plan::step()
 {
-    // Implement the logic for a single step in the plan
-    // This might involve updating the status of facilities, scores, etc.
+    if (status == PlanStatus::AVALIABLE)
+    {
+        while (underConstruction.length() < settlement.getType())
+        {
+            FacilityType nextFacility = selectionPolicy->selectFacility(facilitiesOptions);
+            plan.addFacility(nextFacility);
+        }
+    }
+
+    for (auto &facility : underConstruction)
+    {
+        facility.step();
+        if (facility.getStatus() == FacilityStatus::OPERATIONAL)
+        {
+            moveFacilityToOperational(facility);
+        }
+    }
+    if (underConstruction.length() >= settlement.getType())
+    {
+        plan.setStatus(PlanStatus::BUSY);
+    }
+    else
+    {
+        plan.setStatus(PlanStatus::AVALIABLE);
+    }
 }
 
 void Plan::printStatus()
