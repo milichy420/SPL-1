@@ -28,10 +28,10 @@ void Plan::step()
 {
     if (status == PlanStatus::AVALIABLE)
     {
-        while (underConstruction.length() < settlement.getType())
+        while (underConstruction.length() <= settlement.getType())
         {
             FacilityType nextFacility = selectionPolicy->selectFacility(facilitiesOptions);
-            plan.addFacility(nextFacility);
+            underConstruction.push_back(nextFacility);
         }
     }
 

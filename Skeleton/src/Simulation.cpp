@@ -38,10 +38,10 @@ void Simulation::start()
             const std::string &command = parsedArguments[0];
             if (command == "step")
             {
-                if (parsedArguments.size() >= 2)
+                const int num_of_steps = std::stoi(parsedArguments[1]);
+                for (int i = 0; i < num_of_steps; ++i)
                 {
-                    Settlement *settlement = new Settlement(parsedArguments[1]);
-                    addSettlement(settlement);
+                    step();
                 }
             }
             else if (command == "plan")
@@ -127,8 +127,8 @@ void Simulation::start()
 
 void Simulation::addPlan(const Settlement &settlement, SelectionPolicy *selectionPolicy)
 {
-    plans.emplace_back(planCounter++, settlement, selectionPolicy);
-    planCounter++;
+    // Create a plan with the given settlement and selection policy and add it to the plans vector.
+    plans.emplace_back(planCounter++, settlement, selectionPolicy, facilityOptions);
 }
 
 void Simulation::addAction(BaseAction *action)
