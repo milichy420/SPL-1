@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
+#include "Auxiliary.h"
 
 Simulation::Simulation(const string &configFilePath) : isRunning(false), planCounter(0)
 {
@@ -25,6 +26,103 @@ void Simulation::start()
 {
     isRunning = true;
     std::cout << "Simulation started" << std::endl;
+    std::string line;
+    while (std::getline(configFile, line))
+    {
+        // Process each line of the config file
+        std::cout << "Read line: " << line << std::endl;
+
+        std::vector<std::string> parsedArguments = Auxiliary::parseArguments(line);
+        if (!parsedArguments.empty())
+        {
+            const std::string &command = parsedArguments[0];
+            if (command == "step")
+            {
+                if (parsedArguments.size() >= 2)
+                {
+                    Settlement *settlement = new Settlement(parsedArguments[1]);
+                    addSettlement(settlement);
+                }
+            }
+            else if (command == "plan")
+            {
+                if (parsedArguments.size() >= 2)
+                {
+                    FacilityType facility = Auxiliary::stringToFacilityType(parsedArguments[1]);
+                    addFacility(facility);
+                }
+            }
+            else if (command == "settlement")
+            {
+                if (parsedArguments.size() >= 3)
+                {
+                    Settlement &settlement = getSettlement(parsedArguments[1]);
+                    SelectionPolicy *selectionPolicy = Auxiliary::createSelectionPolicy(parsedArguments[2]);
+                    addPlan(settlement, selectionPolicy);
+                }
+            }
+            else if (command == "facility")
+            {
+                if (parsedArguments.size() >= 2)
+                {
+                    BaseAction *action = Auxiliary::createAction(parsedArguments[1]);
+                    addAction(action);
+                }
+            }
+            else if (command == "planStatus")
+            {
+                if (parsedArguments.size() >= 2)
+                {
+                    BaseAction *action = Auxiliary::createAction(parsedArguments[1]);
+                    addAction(action);
+                }
+            }
+            else if (command == "changePolicy")
+            {
+                if (parsedArguments.size() >= 2)
+                {
+                    BaseAction *action = Auxiliary::createAction(parsedArguments[1]);
+                    addAction(action);
+                }
+            }
+            else if (command == "log")
+            {
+                if (parsedArguments.size() >= 2)
+                {
+                    BaseAction *action = Auxiliary::createAction(parsedArguments[1]);
+                    addAction(action);
+                }
+            }
+            else if (command == "close")
+            {
+                if (parsedArguments.size() >= 2)
+                {
+                    BaseAction *action = Auxiliary::createAction(parsedArguments[1]);
+                    addAction(action);
+                }
+            }
+            else if (command == "backup")
+            {
+                if (parsedArguments.size() >= 2)
+                {
+                    BaseAction *action = Auxiliary::createAction(parsedArguments[1]);
+                    addAction(action);
+                }
+            }
+            else if (command == "restore")
+            {
+                if (parsedArguments.size() >= 2)
+                {
+                    BaseAction *action = Auxiliary::createAction(parsedArguments[1]);
+                    addAction(action);
+                }
+            }
+            else
+            {
+                std::cerr << "Unknown command: " << command << std::endl;
+            }
+        }
+    }
 }
 
 void Simulation::addPlan(const Settlement &settlement, SelectionPolicy *selectionPolicy)
