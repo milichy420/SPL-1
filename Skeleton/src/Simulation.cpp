@@ -15,9 +15,14 @@ Simulation::Simulation(const string &configFilePath) : isRunning(false), planCou
         throw std::runtime_error("Could not open config file");
     }
 
-    // Parse the config file and initialize facilitiesOptions, settlements, etc.
-    // This is a placeholder for actual parsing logic
-    // ...
+    std::string line;
+    while (std::getline(configFile, line))
+    {
+        // Process each line of the config file
+        std::cout << "Read line: " << line << std::endl;
+
+        processCommand(line);
+    }
 
     configFile.close();
 }
@@ -25,102 +30,107 @@ Simulation::Simulation(const string &configFilePath) : isRunning(false), planCou
 void Simulation::start()
 {
     isRunning = true;
-    std::cout << "Simulation started" << std::endl;
-    std::string line;
-    while (std::getline(configFile, line))
-    {
-        // Process each line of the config file
-        std::cout << "Read line: " << line << std::endl;
+    std::cout << "The simulation has started" << std::endl;
 
-        std::vector<std::string> parsedArguments = Auxiliary::parseArguments(line);
-        if (!parsedArguments.empty())
+    while (isRunning)
+    {
+        std::string line;
+        std::cout << "Enter a command: ";
+        std::cin >> line;
+        processCommand(line);
+    }
+}
+
+void Simulation::processCommand(const std::string &line)
+{
+    std::vector<std::string> parsedArguments = Auxiliary::parseArguments(line);
+    if (!parsedArguments.empty())
+    {
+        const std::string &command = parsedArguments[0];
+        if (command == "step")
         {
-            const std::string &command = parsedArguments[0];
-            if (command == "step")
+            const int num_of_steps = std::stoi(parsedArguments[1]);
+            for (int i = 0; i < num_of_steps; ++i)
             {
-                const int num_of_steps = std::stoi(parsedArguments[1]);
-                for (int i = 0; i < num_of_steps; ++i)
-                {
-                    step();
-                }
+                step();
             }
-            else if (command == "plan")
+        }
+        else if (command == "plan")
+        {
+            if (parsedArguments.size() >= 2)
             {
-                if (parsedArguments.size() >= 2)
-                {
-                    FacilityType facility = Auxiliary::stringToFacilityType(parsedArguments[1]);
-                    addFacility(facility);
-                }
+                FacilityType facility = Auxiliary::stringToFacilityType(parsedArguments[1]);
+                addFacility(facility);
             }
-            else if (command == "settlement")
+        }
+        else if (command == "settlement")
+        {
+            if (parsedArguments.size() >= 3)
             {
-                if (parsedArguments.size() >= 3)
-                {
-                    Settlement &settlement = getSettlement(parsedArguments[1]);
-                    SelectionPolicy *selectionPolicy = Auxiliary::createSelectionPolicy(parsedArguments[2]);
-                    addPlan(settlement, selectionPolicy);
-                }
+                Settlement &settlement = getSettlement(parsedArguments[1]);
+                SelectionPolicy *selectionPolicy = Auxiliary::createSelectionPolicy(parsedArguments[2]);
+                addPlan(settlement, selectionPolicy);
             }
-            else if (command == "facility")
+        }
+        else if (command == "facility")
+        {
+            if (parsedArguments.size() >= 2)
             {
-                if (parsedArguments.size() >= 2)
-                {
-                    BaseAction *action = Auxiliary::createAction(parsedArguments[1]);
-                    addAction(action);
-                }
+                BaseAction *action = Auxiliary::createAction(parsedArguments[1]);
+                addAction(action);
             }
-            else if (command == "planStatus")
+        }
+        else if (command == "planStatus")
+        {
+            if (parsedArguments.size() >= 2)
             {
-                if (parsedArguments.size() >= 2)
-                {
-                    BaseAction *action = Auxiliary::createAction(parsedArguments[1]);
-                    addAction(action);
-                }
+                BaseAction *action = Auxiliary::createAction(parsedArguments[1]);
+                addAction(action);
             }
-            else if (command == "changePolicy")
+        }
+        else if (command == "changePolicy")
+        {
+            if (parsedArguments.size() >= 2)
             {
-                if (parsedArguments.size() >= 2)
-                {
-                    BaseAction *action = Auxiliary::createAction(parsedArguments[1]);
-                    addAction(action);
-                }
+                BaseAction *action = Auxiliary::createAction(parsedArguments[1]);
+                addAction(action);
             }
-            else if (command == "log")
+        }
+        else if (command == "log")
+        {
+            if (parsedArguments.size() >= 2)
             {
-                if (parsedArguments.size() >= 2)
-                {
-                    BaseAction *action = Auxiliary::createAction(parsedArguments[1]);
-                    addAction(action);
-                }
+                BaseAction *action = Auxiliary::createAction(parsedArguments[1]);
+                addAction(action);
             }
-            else if (command == "close")
+        }
+        else if (command == "close")
+        {
+            if (parsedArguments.size() >= 2)
             {
-                if (parsedArguments.size() >= 2)
-                {
-                    BaseAction *action = Auxiliary::createAction(parsedArguments[1]);
-                    addAction(action);
-                }
+                BaseAction *action = Auxiliary::createAction(parsedArguments[1]);
+                addAction(action);
             }
-            else if (command == "backup")
+        }
+        else if (command == "backup")
+        {
+            if (parsedArguments.size() >= 2)
             {
-                if (parsedArguments.size() >= 2)
-                {
-                    BaseAction *action = Auxiliary::createAction(parsedArguments[1]);
-                    addAction(action);
-                }
+                BaseAction *action = Auxiliary::createAction(parsedArguments[1]);
+                addAction(action);
             }
-            else if (command == "restore")
+        }
+        else if (command == "restore")
+        {
+            if (parsedArguments.size() >= 2)
             {
-                if (parsedArguments.size() >= 2)
-                {
-                    BaseAction *action = Auxiliary::createAction(parsedArguments[1]);
-                    addAction(action);
-                }
+                BaseAction *action = Auxiliary::createAction(parsedArguments[1]);
+                addAction(action);
             }
-            else
-            {
-                std::cerr << "Unknown command: " << command << std::endl;
-            }
+        }
+        else
+        {
+            std::cerr << "Unknown command: " << command << std::endl;
         }
     }
 }

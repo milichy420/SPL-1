@@ -15,6 +15,7 @@ class Simulation
 public:
     Simulation(const string &configFilePath);
     void start();
+    void processCommand(const std::string &line);
     void addPlan(const Settlement &settlement, SelectionPolicy *selectionPolicy);
     void addAction(BaseAction *action);
     bool addSettlement(Settlement *settlement);
