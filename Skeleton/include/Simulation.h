@@ -26,6 +26,7 @@ public:
     void step();
     void close();
     void open();
+    vector<BaseAction *> getActionsLog();
 
 private:
     bool isRunning;

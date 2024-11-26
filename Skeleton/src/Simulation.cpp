@@ -222,3 +222,8 @@ void Simulation::open()
     isRunning = true;
     std::cout << "Simulation opened" << std::endl;
 }
+
+vector<BaseAction *> Simulation::getActionsLog()
+{
+    return actionsLog;
+}

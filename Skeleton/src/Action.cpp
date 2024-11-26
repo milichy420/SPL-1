@@ -1,4 +1,6 @@
 #include "Action.h"
+#include "Simulation.h"
+#include "Settlement.h"
 
 // BaseAction implementation
 BaseAction::BaseAction() : status(ActionStatus::ERROR), errorMsg("") {}
@@ -29,7 +31,11 @@ SimulateStep::SimulateStep(const int numOfSteps) : numOfSteps(numOfSteps) {}
 
 void SimulateStep::act(Simulation &simulation)
 {
-    // Implementation of act
+    for (int i = 0; i < numOfSteps; ++i)
+    {
+        simulation.step();
+    }
+    complete();
 }
 
 const string SimulateStep::toString() const
@@ -48,7 +54,8 @@ AddPlan::AddPlan(const string &settlementName, const string &selectionPolicy)
 
 void AddPlan::act(Simulation &simulation)
 {
-    // Implementation of act
+    simulation.addPlan(settlementName, selectionPolicy);
+    complete();
 }
 
 const string AddPlan::toString() const
@@ -67,7 +74,8 @@ AddSettlement::AddSettlement(const string &settlementName, SettlementType settle
 
 void AddSettlement::act(Simulation &simulation)
 {
-    // Implementation of act
+    simulation.addSettlement(Settlement::Settlement(settlementName, settlementType));
+    complete();
 }
 
 const string AddSettlement::toString() const
@@ -86,7 +94,8 @@ AddFacility::AddFacility(const string &facilityName, const FacilityCategory faci
 
 void AddFacility::act(Simulation &simulation)
 {
-    // Implementation of act
+    simulation.addFacility(Facility(facilityName, facilityCategory, price, lifeQualityScore, economyScore, environmentScore));
+    complete();
 }
 
 const string AddFacility::toString() const
@@ -123,7 +132,16 @@ ChangePlanPolicy::ChangePlanPolicy(const int planId, const string &newPolicy)
 
 void ChangePlanPolicy::act(Simulation &simulation)
 {
-    // Implementation of act
+    Plan *plan = simulation.getPlan(planId);
+    if (plan != nullptr)
+    {
+        plan->setSelectionPolicy(&newPolicy);
+        complete();
+    }
+    else
+    {
+        error("Plan not found");
+    }
 }
 
 const string ChangePlanPolicy::toString() const
@@ -141,7 +159,12 @@ PrintActionsLog::PrintActionsLog() {}
 
 void PrintActionsLog::act(Simulation &simulation)
 {
-    // Implementation of act
+    const vector<BaseAction *> &actionsLog = simulation.getActionsLog();
+    for (const auto &action : actionsLog)
+    {
+        cout << action->toString() << endl;
+    }
+    complete();
 }
 
 const string PrintActionsLog::toString() const
