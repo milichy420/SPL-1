@@ -101,6 +101,9 @@ void Plan::moveFacilityToOperational(Facility *facility)
     underConstruction.erase(
         remove(underConstruction.begin(), underConstruction.end(), facility),
         underConstruction.end());
+    life_quality_score += facility->getLifeQualityScore();
+    economy_score += facility->getEconomyScore();
+    environment_score += facility->getEnvironmentScore();
 
     // Move a facility from under construction to operational
     // Update scores accordingly

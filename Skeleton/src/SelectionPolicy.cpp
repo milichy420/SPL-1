@@ -75,19 +75,12 @@ const FacilityType &EconomySelection::selectFacility(const vector<FacilityType> 
         throw std::runtime_error("No facilities available for selection.");
     }
 
-    int maxEconomyScore = std::numeric_limits<int>::min();
-    size_t selectedIndex = 0;
-
-    for (size_t i = 0; i < facilitiesOptions.size(); ++i)
+    do
     {
-        if (facilitiesOptions[i].economyScore > maxEconomyScore)
-        {
-            maxEconomyScore = facilitiesOptions[i].getEconomyScore;
-            selectedIndex = i;
-        }
-    }
+        lastSelectedIndex = (lastSelectedIndex + 1) % facilitiesOptions.size();
+    } while (facilitiesOptions[lastSelectedIndex].getCategory() != "economy");
 
-    return facilitiesOptions[selectedIndex];
+    return facilitiesOptions[lastSelectedIndex];
 }
 
 const string EconomySelection::toString() const
@@ -109,11 +102,12 @@ const FacilityType &SustainabilitySelection::selectFacility(const vector<Facilit
     {
         throw std::runtime_error("No facilities available for selection.");
     }
-    std::vector<FacilityType> sortedFacilities = facilitiesOptions;
-    std::sort(sortedFacilities.begin(), sortedFacilities.end(), [](const FacilityType &a, const FacilityType &b)
-              { return a.getSustainabilityScore() > b.getSustainabilityScore(); });
-    lastSelectedIndex++;
-    return sortedFacilities.front();
+    do
+    {
+        lastSelectedIndex = (lastSelectedIndex + 1) % facilitiesOptions.size();
+    } while (facilitiesOptions[lastSelectedIndex].getCategory() != "environment");
+
+    return facilitiesOptions[lastSelectedIndex];
 }
 
 const string SustainabilitySelection::toString() const
