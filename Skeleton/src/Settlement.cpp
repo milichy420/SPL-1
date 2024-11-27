@@ -21,7 +21,7 @@ Settlement::Settlement(const string &name, SettlementType type)
  * @brief Gets the name of the settlement.
  * @return The name of the settlement.
  */
-const string Settlement::&getName() const{
+const string &Settlement::getName() const{
     return name;
 };
 
@@ -29,7 +29,7 @@ const string Settlement::&getName() const{
  * @brief Gets the type of the settlement.
  * @return The type of the settlement.
  */
-Settlement::SettlementType getType() const{
+SettlementType Settlement::getType() const{
     return type;
 };
 
