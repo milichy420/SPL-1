@@ -3,6 +3,7 @@
 #include "Settlement.h"
 #include <iostream>
 using namespace std;
+extern Simulation *backup;
 
 // BaseAction implementation
 BaseAction::BaseAction() : status(ActionStatus::ERROR), errorMsg("") {}
@@ -56,17 +57,21 @@ AddPlan::AddPlan(const string &settlementName, const string &selectionPolicy)
 
 void AddPlan::act(Simulation &simulation)
 {
-    SelectionPolicy* policy = nullptr;
-    if(selectionPolicy == "nve"){
+    SelectionPolicy *policy = nullptr;
+    if (selectionPolicy == "nve")
+    {
         policy = new NaiveSelection();
     }
-    else if(selectionPolicy == "bal"){
-        policy = new BalancedSelection(0,0,0);
+    else if (selectionPolicy == "bal")
+    {
+        policy = new BalancedSelection(0, 0, 0);
     }
-    else if(selectionPolicy == "eco"){
+    else if (selectionPolicy == "eco")
+    {
         policy = new EconomySelection;
     }
-    else if(selectionPolicy == "env"){
+    else if (selectionPolicy == "env")
+    {
         policy = new EconomySelection;
     }
     simulation.addPlan(simulation.getSettlement(settlementName), policy);
@@ -89,10 +94,12 @@ AddSettlement::AddSettlement(const string &settlementName, SettlementType settle
 
 void AddSettlement::act(Simulation &simulation)
 {
-    if (simulation.addSettlement(&Settlement(settlementName, settlementType))){
+    if (simulation.addSettlement(&Settlement(settlementName, settlementType)))
+    {
         complete();
     }
-    else{
+    else
+    {
         error("Settlement already exists");
     }
 }
@@ -132,15 +139,16 @@ PrintPlanStatus::PrintPlanStatus(int planId) : planId(planId) {}
 
 void PrintPlanStatus::act(Simulation &simulation)
 {
-    // Implementation of act
-    try{
+    try
+    {
         Plan &plan = simulation.getPlan(planId);
         plan.printStatus();
+        complete();
     }
-    catch(std::runtime_error){
+    catch (std::runtime_error)
+    {
         error("Plan doesn't exist");
     }
-    
 }
 
 const string PrintPlanStatus::toString() const
@@ -209,7 +217,9 @@ Close::Close() {}
 
 void Close::act(Simulation &simulation)
 {
-    // Implementation of act
+    simulation.close();
+    delete simulation;
+    complete();
 }
 
 const string Close::toString() const
@@ -227,7 +237,12 @@ BackupSimulation::BackupSimulation() {}
 
 void BackupSimulation::act(Simulation &simulation)
 {
-    // Implementation of act
+    if (backup != nullptr)
+    {
+        delete backup;
+    }
+    backup = new Simulation(simulation); // Use the copy constructor
+    complete();
 }
 
 const string BackupSimulation::toString() const
@@ -245,7 +260,15 @@ RestoreSimulation::RestoreSimulation() {}
 
 void RestoreSimulation::act(Simulation &simulation)
 {
-    // Implementation of act
+    if (backup != nullptr)
+    {
+        simulation = *backup; // Use the assignment operator
+        complete();
+    }
+    else
+    {
+        error("No backup available");
+    }
 }
 
 const string RestoreSimulation::toString() const

@@ -5,6 +5,7 @@
 #include <fstream>
 #include <stdexcept>
 #include "Auxiliary.h"
+#include <utility>
 
 Simulation::Simulation(const string &configFilePath) : isRunning(false), planCounter(0)
 {
@@ -18,13 +19,116 @@ Simulation::Simulation(const string &configFilePath) : isRunning(false), planCou
     std::string line;
     while (std::getline(configFile, line))
     {
-        // Process each line of the config file
-        std::cout << "Read line: " << line << std::endl;
-
-        processCommand(line);
+        std::vector<std::string> parsedArguments = Auxiliary::parseArguments(line);
+        if (!parsedArguments.empty())
+        {
+            const std::string &command = parsedArguments[0];
+            if (command == "settlement")
+            {
+                if (parsedArguments.size() >= 3)
+                {
+                    std::string name = parsedArguments[1];
+                    std::string type = parsedArguments[2];
+                    Settlement *settlement = new Settlement(name, type);
+                    if (!addSettlement(settlement))
+                    {
+                        delete settlement;
+                        throw std::runtime_error("Settlement already exists");
+                    }
+                }
+            }
+            else if (command == "facility")
+            {
+                if (parsedArguments.size() >= 7)
+                {
+                    std::string name = parsedArguments[1];
+                    std::string category = parsedArguments[2];
+                    double price = std::stod(parsedArguments[3]);
+                    double lifeQualityImpact = std::stod(parsedArguments[4]);
+                    double ecoImpact = std::stod(parsedArguments[5]);
+                    double envImpact = std::stod(parsedArguments[6]);
+                    FacilityType facility(name, category, price, lifeQualityImpact, ecoImpact, envImpact);
+                    addFacility(facility);
+                }
+            }
+            else if (command == "plan")
+            {
+                if (parsedArguments.size() >= 3)
+                {
+                    Settlement &settlement = getSettlement(parsedArguments[1]);
+                    SelectionPolicy *selectionPolicy = Auxiliary::createSelectionPolicy(parsedArguments[2]);
+                    addPlan(settlement, selectionPolicy);
+                }
+            }
+        }
     }
 
     configFile.close();
+}
+
+// Destructor
+Simulation::~Simulation()
+{
+    for (auto action : actionsLog)
+    {
+        delete action;
+    }
+    for (auto settlement : settlements)
+    {
+        delete settlement;
+    }
+}
+
+// Copy constructor
+Simulation::Simulation(const Simulation &other)
+{
+    copyFrom(other);
+}
+
+// Copy assignment operator
+Simulation &Simulation::operator=(const Simulation &other)
+{
+    if (this != &other)
+    {
+        // Clean up existing resources
+        for (auto action : actionsLog)
+        {
+            delete action;
+        }
+        for (auto settlement : settlements)
+        {
+            delete settlement;
+        }
+        // Copy from other
+        copyFrom(other);
+    }
+    return *this;
+}
+
+// Move constructor
+Simulation::Simulation(Simulation &&other) noexcept
+{
+    moveFrom(std::move(other));
+}
+
+// Move assignment operator
+Simulation &Simulation::operator=(Simulation &&other) noexcept
+{
+    if (this != &other)
+    {
+        // Clean up existing resources
+        for (auto action : actionsLog)
+        {
+            delete action;
+        }
+        for (auto settlement : settlements)
+        {
+            delete settlement;
+        }
+        // Move from other
+        moveFrom(std::move(other));
+    }
+    return *this;
 }
 
 void Simulation::start()
@@ -213,8 +317,11 @@ void Simulation::step()
 
 void Simulation::close()
 {
+    for (const auto &plan : plans)
+    {
+        std::cout << plan.toString() << std::endl;
+    }
     isRunning = false;
-    std::cout << "Simulation closed" << std::endl;
 }
 
 void Simulation::open()
@@ -226,4 +333,38 @@ void Simulation::open()
 vector<BaseAction *> Simulation::getActionsLog()
 {
     return actionsLog;
+}
+
+void Simulation::copyFrom(const Simulation &other)
+{
+    isRunning = other.isRunning;
+    planCounter = other.planCounter;
+    for (const auto action : other.actionsLog)
+    {
+        actionsLog.push_back(action->clone());
+    }
+    for (const auto settlement : other.settlements)
+    {
+        settlements.push_back(new Settlement(*settlement));
+    }
+    plans = other.plans;
+    facilitiesOptions = other.facilitiesOptions;
+}
+
+void Simulation::moveFrom(Simulation &&other) noexcept
+{
+    isRunning = other.isRunning;
+    planCounter = other.planCounter;
+    actionsLog = std::move(other.actionsLog);
+    settlements = std::move(other.settlements);
+    plans = std::move(other.plans);
+    facilitiesOptions = std::move(other.facilitiesOptions);
+
+    // Reset the other simulation
+    other.isRunning = false;
+    other.planCounter = 0;
+    other.actionsLog.clear();
+    other.settlements.clear();
+    other.plans.clear();
+    other.facilitiesOptions.clear();
 }
