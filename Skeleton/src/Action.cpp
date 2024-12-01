@@ -56,7 +56,20 @@ AddPlan::AddPlan(const string &settlementName, const string &selectionPolicy)
 
 void AddPlan::act(Simulation &simulation)
 {
-    simulation.addPlan(settlementName, selectionPolicy);
+    SelectionPolicy* policy = nullptr;
+    if(selectionPolicy == "nve"){
+        policy = new NaiveSelection();
+    }
+    else if(selectionPolicy == "bal"){
+        policy = new BalancedSelection(0,0,0);
+    }
+    else if(selectionPolicy == "eco"){
+        policy = new EconomySelection;
+    }
+    else if(selectionPolicy == "env"){
+        policy = new EconomySelection;
+    }
+    simulation.addPlan(simulation.getSettlement(settlementName), policy);
     complete();
 }
 
