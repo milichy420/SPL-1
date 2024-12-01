@@ -1,6 +1,6 @@
 #include "Plan.h"
 #include <iostream>
-
+using namespace std;
 Plan::Plan(const int planId, const Settlement &settlement, SelectionPolicy *selectionPolicy, const vector<FacilityType> &facilityOptions)
     : plan_id(planId), settlement(settlement), selectionPolicy(selectionPolicy), facilityOptions(facilityOptions), status(PlanStatus::AVALIABLE), life_quality_score(0), economy_score(0), environment_score(0) {}
 
@@ -55,11 +55,21 @@ void Plan::step()
 
 void Plan::printStatus()
 {
-    std::cout << "Plan ID: " << plan_id << std::endl;
-    std::cout << "Status: " << (status == PlanStatus::AVALIABLE ? "Available" : "Busy") << std::endl;
-    std::cout << "Life Quality Score: " << life_quality_score << std::endl;
-    std::cout << "Economy Score: " << economy_score << std::endl;
-    std::cout << "Environment Score: " << environment_score << std::endl;
+    cout << "PlanID: " << plan_id << std::endl;
+    cout << "SettlementName: " << settlement.getName() << std::endl;
+    cout << "PlanStatus: " << (status == PlanStatus::AVALIABLE ? "AVAILABLE" : "BUSY") << std::endl;
+    cout << "SelectionPolicy: " << selectionPolicy->toString() << std::endl;
+    cout << "LifeQualityScore: " << life_quality_score << std::endl;
+    cout << "EconomyScore: " << economy_score << std::endl;
+    cout << "EnvironmentScore: " << environment_score << std::endl;
+    for(Facility *facility : facilities){
+        cout << "FacilityName: " << facility->getName() << endl;
+        cout << "FacilityStatus: OPERATIONAL" << endl;
+    }
+    for(Facility *facility : underConstruction){
+        cout << "FacilityName: " << facility->getName() << endl;
+        cout << "FacilityStatus: UNDER_CONSTRUCTIONS" << endl;
+    }
 }
 
 const vector<Facility *> &Plan::getFacilities() const

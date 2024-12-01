@@ -1,6 +1,8 @@
 #include "Action.h"
 #include "Simulation.h"
 #include "Settlement.h"
+#include <iostream>
+using namespace std;
 
 // BaseAction implementation
 BaseAction::BaseAction() : status(ActionStatus::ERROR), errorMsg("") {}
@@ -74,8 +76,12 @@ AddSettlement::AddSettlement(const string &settlementName, SettlementType settle
 
 void AddSettlement::act(Simulation &simulation)
 {
-    simulation.addSettlement(Settlement::Settlement(settlementName, settlementType));
-    complete();
+    if (simulation.addSettlement(&Settlement(settlementName, settlementType))){
+        complete();
+    }
+    else{
+        error("Settlement already exists");
+    }
 }
 
 const string AddSettlement::toString() const
@@ -114,6 +120,14 @@ PrintPlanStatus::PrintPlanStatus(int planId) : planId(planId) {}
 void PrintPlanStatus::act(Simulation &simulation)
 {
     // Implementation of act
+    try{
+        Plan &plan = simulation.getPlan(planId);
+        plan.printStatus();
+    }
+    catch(std::runtime_error){
+        error("Plan doesn't exist");
+    }
+    
 }
 
 const string PrintPlanStatus::toString() const
