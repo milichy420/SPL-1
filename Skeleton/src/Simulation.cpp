@@ -28,7 +28,8 @@ Simulation::Simulation(const string &configFilePath) : isRunning(false), planCou
                 if (parsedArguments.size() >= 3)
                 {
                     std::string name = parsedArguments[1];
-                    std::string type = parsedArguments[2];
+                    SettlementType type = Auxiliary::parseSettlementType(parsedArguments[2]);
+
                     Settlement *settlement = new Settlement(name, type);
                     if (!addSettlement(settlement))
                     {
@@ -42,11 +43,12 @@ Simulation::Simulation(const string &configFilePath) : isRunning(false), planCou
                 if (parsedArguments.size() >= 7)
                 {
                     std::string name = parsedArguments[1];
-                    std::string category = parsedArguments[2];
-                    double price = std::stod(parsedArguments[3]);
-                    double lifeQualityImpact = std::stod(parsedArguments[4]);
-                    double ecoImpact = std::stod(parsedArguments[5]);
-                    double envImpact = std::stod(parsedArguments[6]);
+                    FacilityCategory category = Auxiliary::parseFacilityCategory(parsedArguments[2]);
+
+                    int price = std::stoi(parsedArguments[3]);
+                    int lifeQualityImpact = std::stoi(parsedArguments[4]);
+                    int ecoImpact = std::stoi(parsedArguments[5]);
+                    int envImpact = std::stoi(parsedArguments[6]);
                     FacilityType facility(name, category, price, lifeQualityImpact, ecoImpact, envImpact);
                     addFacility(facility);
                 }
@@ -56,7 +58,8 @@ Simulation::Simulation(const string &configFilePath) : isRunning(false), planCou
                 if (parsedArguments.size() >= 3)
                 {
                     Settlement &settlement = getSettlement(parsedArguments[1]);
-                    SelectionPolicy *selectionPolicy = Auxiliary::createSelectionPolicy(parsedArguments[2]);
+                    SelectionPolicy *selectionPolicy = Auxiliary::createSelectionPolicy(parsedArguments[2], facilityOptions);
+
                     addPlan(settlement, selectionPolicy);
                 }
             }
@@ -153,88 +156,55 @@ void Simulation::processCommand(const std::string &line)
         const std::string &command = parsedArguments[0];
         if (command == "step")
         {
-            const int num_of_steps = std::stoi(parsedArguments[1]);
-            for (int i = 0; i < num_of_steps; ++i)
-            {
-                step();
-            }
+            BaseAction *action = new SimulateStep(std::stoi(parsedArguments[1]));
         }
         else if (command == "plan")
         {
-            if (parsedArguments.size() >= 2)
-            {
-                FacilityType facility = Auxiliary::stringToFacilityType(parsedArguments[1]);
-                addFacility(facility);
-            }
+            BaseAction *action = new AddPlan(parsedArguments[1], parsedArguments[2]);
         }
         else if (command == "settlement")
         {
-            if (parsedArguments.size() >= 3)
-            {
-                Settlement &settlement = getSettlement(parsedArguments[1]);
-                SelectionPolicy *selectionPolicy = Auxiliary::createSelectionPolicy(parsedArguments[2]);
-                addPlan(settlement, selectionPolicy);
-            }
+            SettlementType type = Auxiliary::parseSettlementType(parsedArguments[2]);
+            BaseAction *action = new AddSettlement(parsedArguments[1], type);
         }
         else if (command == "facility")
         {
-            if (parsedArguments.size() >= 2)
-            {
-                BaseAction *action = Auxiliary::createAction(parsedArguments[1]);
-                addAction(action);
-            }
+            FacilityCategory category = Auxiliary::parseFacilityCategory(parsedArguments[2]);
+            BaseAction *action = new addFacility(parsedArguments[1], category, std::stoi(parsedArguments[3]), std::stoi(parsedArguments[4]), std::stoi(parsedArguments[5]), std::stoi(parsedArguments[6]));
         }
         else if (command == "planStatus")
         {
-            if (parsedArguments.size() >= 2)
-            {
-                BaseAction *action = Auxiliary::createAction(parsedArguments[1]);
-                addAction(action);
-            }
+            BaseAction *action = new PrintPlanStatus(std::stoi(parsedArguments[1]));
         }
         else if (command == "changePolicy")
         {
-            if (parsedArguments.size() >= 2)
-            {
-                BaseAction *action = Auxiliary::createAction(parsedArguments[1]);
-                addAction(action);
-            }
+            BaseAction *action = new ChangePlanPolicy(std::stoi(parsedArguments[1]), parsedArguments[2]);
         }
         else if (command == "log")
         {
-            if (parsedArguments.size() >= 2)
-            {
-                BaseAction *action = Auxiliary::createAction(parsedArguments[1]);
-                addAction(action);
-            }
+            BaseAction *action = new PrintActionsLog();
         }
         else if (command == "close")
         {
-            if (parsedArguments.size() >= 2)
-            {
-                BaseAction *action = Auxiliary::createAction(parsedArguments[1]);
-                addAction(action);
-            }
+            BaseAction *action = new Close();
         }
         else if (command == "backup")
         {
-            if (parsedArguments.size() >= 2)
-            {
-                BaseAction *action = Auxiliary::createAction(parsedArguments[1]);
-                addAction(action);
-            }
+            BaseAction *action = new BackupSimulation();
         }
         else if (command == "restore")
         {
-            if (parsedArguments.size() >= 2)
-            {
-                BaseAction *action = Auxiliary::createAction(parsedArguments[1]);
-                addAction(action);
-            }
+            BaseAction *action = new RestoreSimulation();
         }
         else
         {
             std::cerr << "Unknown command: " << command << std::endl;
+        }
+        action->act(*this);
+        addAction(action);
+        if (!action->getErrorMsg().empty())
+        {
+            std::cerr << "Error: " << action->getErrorMsg() << std::endl;
         }
     }
 }
