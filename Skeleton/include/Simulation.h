@@ -14,8 +14,15 @@ class Simulation
 {
 public:
     Simulation(const string &configFilePath);
+    ~Simulation();                                      // Destructor
+    Simulation(const Simulation &other);                // Copy constructor
+    Simulation &operator=(const Simulation &other);     // Copy assignment operator
+    Simulation(Simulation &&other) noexcept;            // Move constructor
+    Simulation &operator=(Simulation &&other) noexcept; // Move assignment operator
+
     void start();
     void processCommand(const std::string &line);
+    void executeAction(BaseAction *action);
     void addPlan(const Settlement &settlement, SelectionPolicy *selectionPolicy);
     void addAction(BaseAction *action);
     bool addSettlement(Settlement *settlement);
@@ -27,6 +34,7 @@ public:
     void close();
     void open();
     vector<BaseAction *> getActionsLog();
+    vector<FacilityType> getFacilityOptions() const;
 
 private:
     bool isRunning;
@@ -35,4 +43,7 @@ private:
     vector<Plan> plans;
     vector<Settlement *> settlements;
     vector<FacilityType> facilitiesOptions;
+
+    void copyFrom(const Simulation &other);
+    void moveFrom(Simulation &&other) noexcept;
 };
