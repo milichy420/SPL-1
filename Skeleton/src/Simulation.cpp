@@ -1,5 +1,5 @@
 #include "Simulation.h"
-#include "BaseAction.h"
+#include "Action.h"
 #include "SelectionPolicy.h"
 #include <iostream>
 #include <fstream>
@@ -58,7 +58,7 @@ Simulation::Simulation(const string &configFilePath) : isRunning(false), planCou
                 if (parsedArguments.size() >= 3)
                 {
                     Settlement &settlement = getSettlement(parsedArguments[1]);
-                    SelectionPolicy *selectionPolicy = Auxiliary::createSelectionPolicy(parsedArguments[2], facilityOptions);
+                    SelectionPolicy *selectionPolicy = Auxiliary::createSelectionPolicy(parsedArguments[2], Simulation::getFacilityOptions());
 
                     addPlan(settlement, selectionPolicy);
                 }
@@ -157,62 +157,72 @@ void Simulation::processCommand(const std::string &line)
         if (command == "step")
         {
             BaseAction *action = new SimulateStep(std::stoi(parsedArguments[1]));
+            executeAction(action);
         }
         else if (command == "plan")
         {
             BaseAction *action = new AddPlan(parsedArguments[1], parsedArguments[2]);
+            executeAction(action);
         }
         else if (command == "settlement")
         {
             SettlementType type = Auxiliary::parseSettlementType(parsedArguments[2]);
             BaseAction *action = new AddSettlement(parsedArguments[1], type);
+            executeAction(action);
         }
         else if (command == "facility")
         {
             FacilityCategory category = Auxiliary::parseFacilityCategory(parsedArguments[2]);
-            BaseAction *action = new addFacility(parsedArguments[1], category, std::stoi(parsedArguments[3]), std::stoi(parsedArguments[4]), std::stoi(parsedArguments[5]), std::stoi(parsedArguments[6]));
+            BaseAction *action = new AddFacility(parsedArguments[1], category, std::stoi(parsedArguments[3]), std::stoi(parsedArguments[4]), std::stoi(parsedArguments[5]), std::stoi(parsedArguments[6]));
+            executeAction(action);
         }
         else if (command == "planStatus")
         {
             BaseAction *action = new PrintPlanStatus(std::stoi(parsedArguments[1]));
+            executeAction(action);
         }
         else if (command == "changePolicy")
         {
             BaseAction *action = new ChangePlanPolicy(std::stoi(parsedArguments[1]), parsedArguments[2]);
+            executeAction(action);
         }
         else if (command == "log")
         {
             BaseAction *action = new PrintActionsLog();
+            executeAction(action);
         }
         else if (command == "close")
         {
             BaseAction *action = new Close();
+            executeAction(action);
         }
         else if (command == "backup")
         {
             BaseAction *action = new BackupSimulation();
+            executeAction(action);
         }
         else if (command == "restore")
         {
             BaseAction *action = new RestoreSimulation();
+            executeAction(action);
         }
         else
         {
             std::cerr << "Unknown command: " << command << std::endl;
         }
-        action->act(*this);
-        addAction(action);
-        if (!action->getErrorMsg().empty())
-        {
-            std::cerr << "Error: " << action->getErrorMsg() << std::endl;
-        }
     }
+}
+
+void Simulation::executeAction(BaseAction *action)
+{
+    action->act(*this);
+    addAction(action);
 }
 
 void Simulation::addPlan(const Settlement &settlement, SelectionPolicy *selectionPolicy)
 {
     // Create a plan with the given settlement and selection policy and add it to the plans vector.
-    plans.emplace_back(planCounter++, settlement, selectionPolicy, facilityOptions);
+    plans.emplace_back(planCounter++, settlement, selectionPolicy, Simulation::getFacilityOptions());
 }
 
 void Simulation::addAction(BaseAction *action)
@@ -240,7 +250,7 @@ bool Simulation::isSettlementExists(const string &settlementName)
 {
     for (const auto &settlement : settlements)
     {
-        if (settlement.getName() == settlementName)
+        if (settlement->getName() == settlementName)
         {
             return true;
         }
@@ -252,9 +262,9 @@ Settlement &Simulation::getSettlement(const string &settlementName)
 {
     for (auto &settlement : settlements)
     {
-        if (settlement.getName() == settlementName)
+        if (settlement->getName() == settlementName)
         {
-            return settlement;
+            return *settlement;
         }
     }
     throw std::runtime_error("Settlement not found");
@@ -264,7 +274,7 @@ Plan &Simulation::getPlan(const int planID)
 {
     for (auto &plan : plans)
     {
-        if (plan.getID() == planID)
+        if (plan.getId() == planID)
         {
             return plan;
         }
@@ -337,4 +347,9 @@ void Simulation::moveFrom(Simulation &&other) noexcept
     other.settlements.clear();
     other.plans.clear();
     other.facilitiesOptions.clear();
+}
+
+vector<FacilityType> Simulation::getFacilityOptions() const
+{
+    return facilitiesOptions;
 }

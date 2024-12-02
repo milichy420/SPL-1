@@ -25,11 +25,13 @@ public:
     const int getEconomyScore() const;
     const int getEnvironmentScore() const;
     void setSelectionPolicy(SelectionPolicy *selectionPolicy);
+    SelectionPolicy *getSelectionPolicy() const;
     void step();
     void printStatus();
     const vector<Facility *> &getFacilities() const;
     void addFacility(Facility *facility);
     const string toString() const;
+    const int getId() const;
 
     const Settlement getSettlement() const;
     void moveFacilityToUnderConstruction(Facility *facility);

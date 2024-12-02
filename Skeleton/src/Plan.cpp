@@ -96,6 +96,11 @@ void Plan::setSelectionPolicy(SelectionPolicy *selectionPolicy)
     this->selectionPolicy = selectionPolicy;
 }
 
+SelectionPolicy *Plan::getSelectionPolicy() const
+{
+    return selectionPolicy;
+}
+
 void Plan::step()
 {
     if (status == PlanStatus::AVALIABLE)
@@ -165,6 +170,11 @@ const string Plan::toString() const
            "LifeQuality_Score: " + std::to_string(life_quality_score) + "\n" +
            "Economy_Score: " + std::to_string(economy_score) + "\n" +
            "Environment_Score: " + std::to_string(environment_score);
+}
+
+const int Plan::getId() const
+{
+    return plan_id;
 }
 
 const Settlement Plan::getSettlement() const

@@ -1,6 +1,8 @@
 #include "Action.h"
 #include "Simulation.h"
 #include "Settlement.h"
+#include "Facility.h"
+#include "Auxiliary.h"
 #include <iostream>
 using namespace std;
 extern Simulation *backup;
@@ -22,6 +24,7 @@ void BaseAction::error(string errorMsg)
 {
     this->errorMsg = errorMsg;
     status = ActionStatus::ERROR;
+    std::cerr << "Error: " << errorMsg << std::endl;
 }
 
 const string &BaseAction::getErrorMsg() const
@@ -57,23 +60,7 @@ AddPlan::AddPlan(const string &settlementName, const string &selectionPolicy)
 
 void AddPlan::act(Simulation &simulation)
 {
-    SelectionPolicy *policy = nullptr;
-    if (selectionPolicy == "nve")
-    {
-        policy = new NaiveSelection();
-    }
-    else if (selectionPolicy == "bal")
-    {
-        policy = new BalancedSelection(0, 0, 0);
-    }
-    else if (selectionPolicy == "eco")
-    {
-        policy = new EconomySelection;
-    }
-    else if (selectionPolicy == "env")
-    {
-        policy = new EconomySelection;
-    }
+    SelectionPolicy *policy = Auxiliary::createSelectionPolicy(selectionPolicy, simulation.getFacilityOptions());
     simulation.addPlan(simulation.getSettlement(settlementName), policy);
     complete();
 }
@@ -94,12 +81,14 @@ AddSettlement::AddSettlement(const string &settlementName, SettlementType settle
 
 void AddSettlement::act(Simulation &simulation)
 {
-    if (simulation.addSettlement(&Settlement(settlementName, settlementType)))
+    Settlement *settlement = new Settlement(settlementName, settlementType);
+    if (simulation.addSettlement(settlement))
     {
         complete();
     }
     else
     {
+        delete settlement;
         error("Settlement already exists");
     }
 }
@@ -120,7 +109,7 @@ AddFacility::AddFacility(const string &facilityName, const FacilityCategory faci
 
 void AddFacility::act(Simulation &simulation)
 {
-    simulation.addFacility(Facility(facilityName, facilityCategory, price, lifeQualityScore, economyScore, environmentScore));
+    simulation.addFacility(FacilityType(facilityName, facilityCategory, price, lifeQualityScore, economyScore, environmentScore));
     complete();
 }
 
@@ -167,15 +156,24 @@ ChangePlanPolicy::ChangePlanPolicy(const int planId, const string &newPolicy)
 
 void ChangePlanPolicy::act(Simulation &simulation)
 {
-    Plan *plan = simulation.getPlan(planId);
-    if (plan != nullptr)
+    // should error when the previous policy is the same as the new policy or if the planID doesn't exist
+    try
     {
-        plan->setSelectionPolicy(&newPolicy);
-        complete();
+        Plan &plan = simulation.getPlan(planId);
+        if (newPolicy != plan.getSelectionPolicy()->toString())
+        {
+            SelectionPolicy *policy = Auxiliary::createSelectionPolicy(newPolicy, simulation.getFacilityOptions());
+            plan.setSelectionPolicy(policy);
+            complete();
+        }
+        else
+        {
+            error("Cannot change selection policy");
+        }
     }
-    else
+    catch (const std::runtime_error &e)
     {
-        error("Plan not found");
+        error("Cannot change selection policy");
     }
 }
 
@@ -218,7 +216,7 @@ Close::Close() {}
 void Close::act(Simulation &simulation)
 {
     simulation.close();
-    delete simulation;
+    delete &simulation;
     complete();
 }
 
