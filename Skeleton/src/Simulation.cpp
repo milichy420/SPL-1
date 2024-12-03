@@ -222,7 +222,7 @@ void Simulation::executeAction(BaseAction *action)
 void Simulation::addPlan(const Settlement &settlement, SelectionPolicy *selectionPolicy)
 {
     // Create a plan with the given settlement and selection policy and add it to the plans vector.
-    plans.emplace_back(planCounter++, settlement, selectionPolicy, Simulation::getFacilityOptions());
+    plans.emplace_back(planCounter++, settlement, selectionPolicy, facilitiesOptions);
 }
 
 void Simulation::addAction(BaseAction *action)
@@ -291,6 +291,7 @@ void Simulation::step()
 
     for (auto &plan : plans)
     {
+        std::cout << "Facility options pointer: " << &facilitiesOptions << std::endl;
         plan.step();
     }
 }
@@ -307,7 +308,6 @@ void Simulation::close()
 void Simulation::open()
 {
     isRunning = true;
-    std::cout << "Simulation opened" << std::endl;
 }
 
 vector<BaseAction *> Simulation::getActionsLog()
@@ -352,9 +352,4 @@ void Simulation::moveFrom(Simulation &&other) noexcept
     other.settlements.clear();
     other.plans.clear();
     other.facilitiesOptions.clear();
-}
-
-vector<FacilityType> Simulation::getFacilityOptions() const
-{
-    return facilitiesOptions;
 }

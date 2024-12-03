@@ -34,7 +34,6 @@ public:
     void close();
     void open();
     vector<BaseAction *> getActionsLog();
-    vector<FacilityType> getFacilityOptions() const;
 
 private:
     bool isRunning;
