@@ -105,7 +105,7 @@ void Plan::step()
 {
     if (status == PlanStatus::AVALIABLE)
     {
-        while (underConstruction.size() <= static_cast<unsigned int>(settlement.getType()))
+        while (underConstruction.size() < static_cast<unsigned int>(settlement.getType()))
         {
             FacilityType nextFacilityType = selectionPolicy->selectFacility(facilityOptions);
             Facility *nextFacility = new Facility(nextFacilityType, settlement.getName());

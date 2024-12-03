@@ -291,7 +291,6 @@ void Simulation::step()
 
     for (auto &plan : plans)
     {
-        std::cout << "Facility options pointer: " << &facilitiesOptions << std::endl;
         plan.step();
     }
 }
