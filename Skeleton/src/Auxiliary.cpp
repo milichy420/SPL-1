@@ -65,18 +65,18 @@ SelectionPolicy *Auxiliary::createSelectionPolicy(const std::string &policy, con
 {
     if (policy == "nve")
     {
-        return new NaiveSelection(facilityOptions);
+        return new NaiveSelection();
     }
     else if (policy == "bal")
     {
-        return new BalancedSelection(facilityOptions);
+        return new BalancedSelection(0,0,0);
     }
     else if (policy == "eco")
     {
-        return new EconomySelection(facilityOptions);
+        return new EconomySelection();
     }
     else
     {
-        return new SustainabilitySelection(facilityOptions);
+        return new SustainabilitySelection();
     }
 }

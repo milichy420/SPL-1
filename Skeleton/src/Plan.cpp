@@ -105,28 +105,29 @@ void Plan::step()
 {
     if (status == PlanStatus::AVALIABLE)
     {
-        while (underConstruction.size() <= settlement.getType())
+        while (underConstruction.size() <= static_cast<unsigned int>(settlement.getType()))
         {
-            FacilityType nextFacility = selectionPolicy->selectFacility(facilitiesOptions);
+            FacilityType nextFacilityType = selectionPolicy->selectFacility(facilityOptions);
+            Facility *nextFacility = new Facility(nextFacilityType, settlement.getName());
             underConstruction.push_back(nextFacility);
         }
     }
 
     for (auto &facility : underConstruction)
     {
-        facility.step();
-        if (facility.getStatus() == FacilityStatus::OPERATIONAL)
+        facility -> step();
+        if (facility -> getStatus() == FacilityStatus::OPERATIONAL)
         {
             moveFacilityToOperational(facility);
         }
     }
-    if (underConstruction.size() >= settlement.getType())
+    if (underConstruction.size() >= static_cast<unsigned int>(settlement.getType()))
     {
-        plan.setStatus(PlanStatus::BUSY);
+        status = PlanStatus::BUSY;
     }
     else
     {
-        plan.setStatus(PlanStatus::AVALIABLE);
+        status = PlanStatus::AVALIABLE;
     }
 }
 
@@ -184,10 +185,16 @@ const Settlement Plan::getSettlement() const
 
 void Plan::moveFacilityToUnderConstruction(Facility *facility)
 {
-    underConstruction.add(facility);
-    facilities.erase(
-        remove(facilities.begin(), facilities.end(), facility),
-        facilities.end());
+    underConstruction.push_back(facility);
+    int index = 0;
+    for (Facility* current_facility : facilities){
+        if (facility == current_facility)
+        {
+            facilities.erase(facilities.begin() + index);
+        }
+        index++;
+    }
+
 
     // Move a facility from operational to under construction
     // Update scores accordingly
@@ -195,10 +202,15 @@ void Plan::moveFacilityToUnderConstruction(Facility *facility)
 
 void Plan::moveFacilityToOperational(Facility *facility)
 {
-    facilities.add(facility);
-    underConstruction.erase(
-        remove(underConstruction.begin(), underConstruction.end(), facility),
-        underConstruction.end());
+    facilities.push_back(facility);
+    int index = 0;
+    for(Facility* current_facility: underConstruction){
+        if (facility == current_facility)
+        {
+            underConstruction.erase(underConstruction.begin() + index);
+        }
+        index++;
+    }
     life_quality_score += facility->getLifeQualityScore();
     economy_score += facility->getEconomyScore();
     environment_score += facility->getEnvironmentScore();
