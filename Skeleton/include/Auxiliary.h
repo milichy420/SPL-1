@@ -3,6 +3,9 @@
 #include <vector>
 #include <sstream>
 #include <string>
+#include "Settlement.h"
+#include "Facility.h"
+#include "SelectionPolicy.h"
 
 class Auxiliary
 {

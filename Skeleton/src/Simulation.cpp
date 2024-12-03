@@ -328,7 +328,11 @@ void Simulation::copyFrom(const Simulation &other)
         settlements.push_back(new Settlement(*settlement));
     }
     plans = other.plans;
-    facilitiesOptions = other.facilitiesOptions;
+    
+    facilitiesOptions.clear();
+    for(FacilityType facility : other.facilitiesOptions){
+        facilitiesOptions.push_back(facility);
+    }
 }
 
 void Simulation::moveFrom(Simulation &&other) noexcept

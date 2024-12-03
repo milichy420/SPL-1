@@ -1,5 +1,7 @@
 #include "SelectionPolicy.h"
 #include <stdexcept>
+#include <limits>
+#include <algorithm>
 
 // NaiveSelection implementation
 NaiveSelection::NaiveSelection() : lastSelectedIndex(-1) {}
@@ -78,7 +80,7 @@ const FacilityType &EconomySelection::selectFacility(const vector<FacilityType> 
     do
     {
         lastSelectedIndex = (lastSelectedIndex + 1) % facilitiesOptions.size();
-    } while (facilitiesOptions[lastSelectedIndex].getCategory() != "economy");
+    } while (facilitiesOptions[lastSelectedIndex].getCategory() != FacilityCategory::ECONOMY);
 
     return facilitiesOptions[lastSelectedIndex];
 }
@@ -105,7 +107,7 @@ const FacilityType &SustainabilitySelection::selectFacility(const vector<Facilit
     do
     {
         lastSelectedIndex = (lastSelectedIndex + 1) % facilitiesOptions.size();
-    } while (facilitiesOptions[lastSelectedIndex].getCategory() != "environment");
+    } while (facilitiesOptions[lastSelectedIndex].getCategory() != FacilityCategory::ENVIRONMENT);
 
     return facilitiesOptions[lastSelectedIndex];
 }
