@@ -61,7 +61,7 @@ FacilityCategory Auxiliary::parseFacilityCategory(const std::string &category)
     }
 }
 
-SelectionPolicy *Auxiliary::createSelectionPolicy(const std::string &policy, const std::vector<FacilityType> &facilityOptions)
+SelectionPolicy *Auxiliary::createSelectionPolicy(const std::string &policy)
 {
     if (policy == "nve")
     {
@@ -69,7 +69,7 @@ SelectionPolicy *Auxiliary::createSelectionPolicy(const std::string &policy, con
     }
     else if (policy == "bal")
     {
-        return new BalancedSelection(0,0,0);
+        return new BalancedSelection(0, 0, 0);
     }
     else if (policy == "eco")
     {

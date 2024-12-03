@@ -60,7 +60,7 @@ AddPlan::AddPlan(const string &settlementName, const string &selectionPolicy)
 
 void AddPlan::act(Simulation &simulation)
 {
-    SelectionPolicy *policy = Auxiliary::createSelectionPolicy(selectionPolicy, simulation.getFacilityOptions());
+    SelectionPolicy *policy = Auxiliary::createSelectionPolicy(selectionPolicy);
     simulation.addPlan(simulation.getSettlement(settlementName), policy);
     complete();
 }
@@ -162,7 +162,7 @@ void ChangePlanPolicy::act(Simulation &simulation)
         Plan &plan = simulation.getPlan(planId);
         if (newPolicy != plan.getSelectionPolicy()->toString())
         {
-            SelectionPolicy *policy = Auxiliary::createSelectionPolicy(newPolicy, simulation.getFacilityOptions());
+            SelectionPolicy *policy = Auxiliary::createSelectionPolicy(newPolicy);
             plan.setSelectionPolicy(policy);
             complete();
         }

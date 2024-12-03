@@ -115,8 +115,8 @@ void Plan::step()
 
     for (auto &facility : underConstruction)
     {
-        facility -> step();
-        if (facility -> getStatus() == FacilityStatus::OPERATIONAL)
+        facility->step();
+        if (facility->getStatus() == FacilityStatus::OPERATIONAL)
         {
             moveFacilityToOperational(facility);
         }
@@ -187,14 +187,14 @@ void Plan::moveFacilityToUnderConstruction(Facility *facility)
 {
     underConstruction.push_back(facility);
     int index = 0;
-    for (Facility* current_facility : facilities){
+    for (Facility *current_facility : facilities)
+    {
         if (facility == current_facility)
         {
             facilities.erase(facilities.begin() + index);
         }
         index++;
     }
-
 
     // Move a facility from operational to under construction
     // Update scores accordingly
@@ -204,7 +204,8 @@ void Plan::moveFacilityToOperational(Facility *facility)
 {
     facilities.push_back(facility);
     int index = 0;
-    for(Facility* current_facility: underConstruction){
+    for (Facility *current_facility : underConstruction)
+    {
         if (facility == current_facility)
         {
             underConstruction.erase(underConstruction.begin() + index);
