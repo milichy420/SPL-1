@@ -58,8 +58,7 @@ Simulation::Simulation(const string &configFilePath) : isRunning(false), planCou
                 if (parsedArguments.size() >= 3)
                 {
                     Settlement &settlement = getSettlement(parsedArguments[1]);
-                    SelectionPolicy *selectionPolicy = Auxiliary::createSelectionPolicy(parsedArguments[2], Simulation::getFacilityOptions());
-
+                    SelectionPolicy *selectionPolicy = Auxiliary::createSelectionPolicy(parsedArguments[2]);
                     addPlan(settlement, selectionPolicy);
                 }
             }
@@ -143,7 +142,8 @@ void Simulation::start()
     {
         std::string line;
         std::cout << "Enter a command: ";
-        std::cin >> line;
+        std::getline(std::cin, line);
+
         processCommand(line);
     }
 }
@@ -328,9 +328,10 @@ void Simulation::copyFrom(const Simulation &other)
         settlements.push_back(new Settlement(*settlement));
     }
     plans = other.plans;
-    
+
     facilitiesOptions.clear();
-    for(FacilityType facility : other.facilitiesOptions){
+    for (FacilityType facility : other.facilitiesOptions)
+    {
         facilitiesOptions.push_back(facility);
     }
 }
