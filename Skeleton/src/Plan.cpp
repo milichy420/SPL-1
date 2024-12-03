@@ -105,7 +105,6 @@ void Plan::step()
 {
     if (status == PlanStatus::AVALIABLE)
     {
-        std::cout << "Facility options pointer in plan: " << &facilityOptions << std::endl;
         while (underConstruction.size() <= static_cast<unsigned int>(settlement.getType()))
         {
             FacilityType nextFacilityType = selectionPolicy->selectFacility(facilityOptions);
