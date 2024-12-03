@@ -54,6 +54,10 @@ const FacilityType &BalancedSelection::selectFacility(const vector<FacilityType>
         }
     }
 
+    LifeQualityScore = facilitiesOptions[selectedIndex].getLifeQualityScore() + LifeQualityScore;
+    EconomyScore = facilitiesOptions[selectedIndex].getEconomyScore() + EconomyScore;
+    EnvironmentScore = facilitiesOptions[selectedIndex].getEnvironmentScore() + EnvironmentScore;
+
     return facilitiesOptions[selectedIndex];
 }
 
