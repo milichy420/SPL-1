@@ -75,8 +75,9 @@ SelectionPolicy *Auxiliary::createSelectionPolicy(const std::string &policy)
     {
         return new EconomySelection();
     }
-    else
+    else if (policy == "env")
     {
         return new SustainabilitySelection();
     }
+    throw std::runtime_error("non existant policy");
 }
