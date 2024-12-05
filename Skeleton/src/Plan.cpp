@@ -10,19 +10,29 @@ Plan::Plan(const int planId, const Settlement &settlement, SelectionPolicy *sele
 Plan::~Plan()
 {
     delete selectionPolicy;
+
     for (auto facility : facilities)
     {
         delete facility;
     }
+    facilities.clear();
     for (auto facility : underConstruction)
     {
         delete facility;
     }
+    underConstruction.clear();
 }
 
 // Copy constructor
 Plan::Plan(const Plan &other)
     : plan_id(other.plan_id), settlement(other.settlement), facilityOptions(other.facilityOptions)
+{
+    copyFrom(other);
+}
+
+// Copy counstructor 2
+Plan::Plan(const Plan &other, const Settlement &settlement, const vector<FacilityType> &facilityOptions)
+    : plan_id(other.plan_id), settlement(settlement), facilityOptions(facilityOptions)
 {
     copyFrom(other);
 }
@@ -38,10 +48,12 @@ Plan &Plan::operator=(const Plan &other)
         {
             delete facility;
         }
+        facilities.clear();
         for (auto facility : underConstruction)
         {
             delete facility;
         }
+        underConstruction.clear();
         // Copy from other
         copyFrom(other);
     }
@@ -62,14 +74,17 @@ Plan &Plan::operator=(Plan &&other) noexcept
     {
         // Clean up existing resources
         delete selectionPolicy;
+
         for (auto facility : facilities)
         {
             delete facility;
         }
+        facilities.clear();
         for (auto facility : underConstruction)
         {
             delete facility;
         }
+        underConstruction.clear();
         // Move from other
         moveFrom(std::move(other));
     }
@@ -160,7 +175,6 @@ const vector<Facility *> &Plan::getFacilities() const
 void Plan::addFacility(Facility *facility)
 {
     facilities.push_back(facility);
-    // Update scores based on the new facility
 }
 
 const string Plan::toString() const
@@ -209,6 +223,7 @@ void Plan::moveFacilityToOperational(Facility *facility)
         if (facility == current_facility)
         {
             underConstruction.erase(underConstruction.begin() + index);
+            break;
         }
         index++;
     }
