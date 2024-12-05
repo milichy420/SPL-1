@@ -242,6 +242,11 @@ bool Simulation::addSettlement(Settlement *settlement)
 
 bool Simulation::addFacility(FacilityType facility)
 {
+    for(FacilityType current_facility : facilitiesOptions){
+        if(current_facility.getName() == facility.getName()){
+            throw std::runtime_error("facility already exists");
+        }
+    }
     facilitiesOptions.push_back(facility);
     return true;
 }
