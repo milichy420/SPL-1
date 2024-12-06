@@ -96,7 +96,7 @@ void AddPlan::act(Simulation &simulation)
     {
         policy = Auxiliary::createSelectionPolicy(selectionPolicy);
     }
-    catch (std::runtime_error)
+    catch (std::runtime_error const&)
     {
         error("Cannot create this plan, Selection Policy doesn't exist");
     }
@@ -105,7 +105,7 @@ void AddPlan::act(Simulation &simulation)
         simulation.addPlan(simulation.getSettlement(settlementName), policy);
         complete();
     }
-    catch (std::runtime_error)
+    catch (std::runtime_error const&)
     {
         error("Cannot create this plan, Settlement doesn't exist");
     }
@@ -188,7 +188,7 @@ void PrintPlanStatus::act(Simulation &simulation)
         plan.printStatus();
         complete();
     }
-    catch (std::runtime_error)
+    catch (std::runtime_error const&)
     {
         error("Plan doesn't exist");
     }

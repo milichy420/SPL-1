@@ -1,4 +1,3 @@
-#pragma once
 #include <string>
 #include <vector>
 #include "Settlement.h"
@@ -28,4 +27,5 @@ const string Settlement::toString() const
     case SettlementType::METROPOLIS:
         return "SettlementName: " + name + "\nSettlementType: Metropolis";
     }
+    return "SettlementName: " + name + "\nSettlementType: Unknown";
 };
