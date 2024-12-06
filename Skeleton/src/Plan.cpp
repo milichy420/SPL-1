@@ -128,12 +128,21 @@ void Plan::step()
         }
     }
 
-    for (auto &facility : underConstruction)
+    for (auto it = underConstruction.begin(); it != underConstruction.end();)
     {
-        facility->step();
-        if (facility->getStatus() == FacilityStatus::OPERATIONAL)
+        (*it)->step();
+        if ((*it)->getStatus() == FacilityStatus::OPERATIONAL)
         {
-            moveFacilityToOperational(facility);
+            facilities.push_back(*it);
+            it = underConstruction.erase(it);
+
+            life_quality_score += (*it)->getLifeQualityScore();
+            economy_score += (*it)->getEconomyScore();
+            environment_score += (*it)->getEnvironmentScore();
+        }
+        else
+        {
+            ++it;
         }
     }
     if (underConstruction.size() >= static_cast<unsigned int>(settlement.getType()))
@@ -195,44 +204,6 @@ const int Plan::getId() const
 const Settlement Plan::getSettlement() const
 {
     return settlement;
-}
-
-void Plan::moveFacilityToUnderConstruction(Facility *facility)
-{
-    underConstruction.push_back(facility);
-    int index = 0;
-    for (Facility *current_facility : facilities)
-    {
-        if (facility == current_facility)
-        {
-            facilities.erase(facilities.begin() + index);
-        }
-        index++;
-    }
-
-    // Move a facility from operational to under construction
-    // Update scores accordingly
-}
-
-void Plan::moveFacilityToOperational(Facility *facility)
-{
-    facilities.push_back(facility);
-    int index = 0;
-    for (Facility *current_facility : underConstruction)
-    {
-        if (facility == current_facility)
-        {
-            underConstruction.erase(underConstruction.begin() + index);
-            break;
-        }
-        index++;
-    }
-    life_quality_score += facility->getLifeQualityScore();
-    economy_score += facility->getEconomyScore();
-    environment_score += facility->getEnvironmentScore();
-
-    // Move a facility from under construction to operational
-    // Update scores accordingly
 }
 
 void Plan::copyFrom(const Plan &other)
