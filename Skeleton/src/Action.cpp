@@ -9,21 +9,32 @@ using namespace std;
 extern Simulation *backup;
 
 // ActionStatus toString function
-std::string actionStatusToString(ActionStatus status){
-    switch (status) {
-        case ActionStatus::COMPLETED: return "COMPLETED";
-        case ActionStatus::ERROR: return "ERROR";
-        default: return "UNKNOWN";
+std::string actionStatusToString(ActionStatus status)
+{
+    switch (status)
+    {
+    case ActionStatus::COMPLETED:
+        return "COMPLETED";
+    case ActionStatus::ERROR:
+        return "ERROR";
+    default:
+        return "UNKNOWN";
     }
 }
 
 // FacilityCategory toString function
-std::string facilityCategoryToString(FacilityCategory category) {
-    switch (category) {
-        case FacilityCategory::LIFE_QUALITY: return "LIFE_QUALITY";
-        case FacilityCategory::ECONOMY: return "ECONOMY";
-        case FacilityCategory::ENVIRONMENT: return "ENVIRONMENT";
-        default: return "UNKNOWN";
+std::string facilityCategoryToString(FacilityCategory category)
+{
+    switch (category)
+    {
+    case FacilityCategory::LIFE_QUALITY:
+        return "LIFE_QUALITY";
+    case FacilityCategory::ECONOMY:
+        return "ECONOMY";
+    case FacilityCategory::ENVIRONMENT:
+        return "ENVIRONMENT";
+    default:
+        return "UNKNOWN";
     }
 }
 
@@ -66,7 +77,7 @@ void SimulateStep::act(Simulation &simulation)
 
 const string SimulateStep::toString() const
 {
-    return "Step " + std::to_string(numOfSteps) + " " + actionStatusToString(getStatus());
+    return "step " + std::to_string(numOfSteps) + " " + actionStatusToString(getStatus());
 }
 
 SimulateStep *SimulateStep::clone() const
@@ -81,24 +92,28 @@ AddPlan::AddPlan(const string &settlementName, const string &selectionPolicy)
 void AddPlan::act(Simulation &simulation)
 {
     SelectionPolicy *policy;
-    try{
-        SelectionPolicy *policy = Auxiliary::createSelectionPolicy(selectionPolicy);
+    try
+    {
+        policy = Auxiliary::createSelectionPolicy(selectionPolicy);
     }
-    catch(std::runtime_error){
+    catch (std::runtime_error)
+    {
         error("Cannot create this plan, Selection Policy doesn't exist");
     }
-    try{
+    try
+    {
         simulation.addPlan(simulation.getSettlement(settlementName), policy);
+        complete();
     }
-    catch(std::runtime_error){
+    catch (std::runtime_error)
+    {
         error("Cannot create this plan, Settlement doesn't exist");
     }
-    complete();
 }
 
 const string AddPlan::toString() const
 {
-    return "Plan " + settlementName + " " + selectionPolicy + " " + actionStatusToString(getStatus());
+    return "plan " + settlementName + " " + selectionPolicy + " " + actionStatusToString(getStatus());
 }
 
 AddPlan *AddPlan::clone() const
@@ -126,7 +141,7 @@ void AddSettlement::act(Simulation &simulation)
 
 const string AddSettlement::toString() const
 {
-    return "Settlement " + settlementName + " " + std::to_string(static_cast<unsigned int>(settlementType) - 1) + " " + actionStatusToString(getStatus());
+    return "settlement " + settlementName + " " + std::to_string(static_cast<unsigned int>(settlementType) - 1) + " " + actionStatusToString(getStatus());
     // the settlement numbers correlate to the building limit and as such are 1 higher, so we reduce them by 1
 }
 
@@ -143,19 +158,18 @@ void AddFacility::act(Simulation &simulation)
 {
     try
     {
-    simulation.addFacility(FacilityType(facilityName, facilityCategory, price, lifeQualityScore, economyScore, environmentScore));
+        simulation.addFacility(FacilityType(facilityName, facilityCategory, price, lifeQualityScore, economyScore, environmentScore));
+        complete();
     }
-    catch(const std::exception& e)
+    catch (const std::exception &e)
     {
         error(e.what());
     }
-    
-    complete();
 }
 
 const string AddFacility::toString() const
 {
-    return "Facility " + facilityName + " " + facilityCategoryToString(facilityCategory) + " " + std::to_string(price)+ " " + std::to_string(lifeQualityScore)+ " " + std::to_string(economyScore)+ " " + std::to_string(environmentScore) + " " + actionStatusToString(getStatus());
+    return "facility " + facilityName + " " + facilityCategoryToString(facilityCategory) + " " + std::to_string(price) + " " + std::to_string(lifeQualityScore) + " " + std::to_string(economyScore) + " " + std::to_string(environmentScore) + " " + actionStatusToString(getStatus());
 }
 
 AddFacility *AddFacility::clone() const
@@ -182,7 +196,7 @@ void PrintPlanStatus::act(Simulation &simulation)
 
 const string PrintPlanStatus::toString() const
 {
-    return "PlanStatus " + std::to_string(planId) + " " + actionStatusToString(getStatus());
+    return "planStatus " + std::to_string(planId) + " " + actionStatusToString(getStatus());
 }
 
 PrintPlanStatus *PrintPlanStatus::clone() const
@@ -219,7 +233,7 @@ void ChangePlanPolicy::act(Simulation &simulation)
 
 const string ChangePlanPolicy::toString() const
 {
-    return "ChangePolicy " + std::to_string(planId) + " " + newPolicy + " " + actionStatusToString(getStatus());
+    return "changePolicy " + std::to_string(planId) + " " + newPolicy + " " + actionStatusToString(getStatus());
 }
 
 ChangePlanPolicy *ChangePlanPolicy::clone() const
@@ -242,7 +256,7 @@ void PrintActionsLog::act(Simulation &simulation)
 
 const string PrintActionsLog::toString() const
 {
-    return "Log " + actionStatusToString(getStatus());
+    return "log " + actionStatusToString(getStatus());
 }
 
 PrintActionsLog *PrintActionsLog::clone() const
@@ -256,13 +270,12 @@ Close::Close() {}
 void Close::act(Simulation &simulation)
 {
     simulation.close();
-    delete &simulation;
     complete();
 }
 
 const string Close::toString() const
 {
-    return "Close " + actionStatusToString(getStatus());
+    return "close " + actionStatusToString(getStatus());
 }
 
 Close *Close::clone() const
@@ -285,7 +298,7 @@ void BackupSimulation::act(Simulation &simulation)
 
 const string BackupSimulation::toString() const
 {
-    return "Backup " + actionStatusToString(getStatus());
+    return "backup " + actionStatusToString(getStatus());
 }
 
 BackupSimulation *BackupSimulation::clone() const
@@ -311,7 +324,7 @@ void RestoreSimulation::act(Simulation &simulation)
 
 const string RestoreSimulation::toString() const
 {
-    return "Restore " + actionStatusToString(getStatus());
+    return "restore " + actionStatusToString(getStatus());
 }
 
 RestoreSimulation *RestoreSimulation::clone() const

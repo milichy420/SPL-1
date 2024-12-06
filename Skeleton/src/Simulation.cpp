@@ -57,9 +57,7 @@ Simulation::Simulation(const string &configFilePath) : isRunning(false), planCou
             {
                 if (parsedArguments.size() >= 3)
                 {
-                    Settlement &settlement = getSettlement(parsedArguments[1]);
-                    SelectionPolicy *selectionPolicy = Auxiliary::createSelectionPolicy(parsedArguments[2]);
-                    addPlan(settlement, selectionPolicy);
+                    addPlan(getSettlement(parsedArguments[1]), Auxiliary::createSelectionPolicy(parsedArguments[2]));
                 }
             }
         }
@@ -75,10 +73,13 @@ Simulation::~Simulation()
     {
         delete action;
     }
+    actionsLog.clear();
+
     for (auto settlement : settlements)
     {
         delete settlement;
     }
+    settlements.clear();
 }
 
 // Copy constructor
@@ -92,15 +93,6 @@ Simulation &Simulation::operator=(const Simulation &other)
 {
     if (this != &other)
     {
-        // Clean up existing resources
-        for (auto action : actionsLog)
-        {
-            delete action;
-        }
-        for (auto settlement : settlements)
-        {
-            delete settlement;
-        }
         // Copy from other
         copyFrom(other);
     }
@@ -123,10 +115,12 @@ Simulation &Simulation::operator=(Simulation &&other) noexcept
         {
             delete action;
         }
+        actionsLog.clear();
         for (auto settlement : settlements)
         {
             delete settlement;
         }
+        settlements.clear();
         // Move from other
         moveFrom(std::move(other));
     }
@@ -242,9 +236,11 @@ bool Simulation::addSettlement(Settlement *settlement)
 
 bool Simulation::addFacility(FacilityType facility)
 {
-    for(FacilityType current_facility : facilitiesOptions){
-        if(current_facility.getName() == facility.getName()){
-            throw std::runtime_error("facility already exists");
+    for (FacilityType current_facility : facilitiesOptions)
+    {
+        if (current_facility.getName() == facility.getName())
+        {
+            throw std::runtime_error("Facility already exists");
         }
     }
     facilitiesOptions.push_back(facility);
@@ -296,7 +292,6 @@ void Simulation::step()
 
     for (auto &plan : plans)
     {
-        std::cout << "Facility options pointer: " << &facilitiesOptions << std::endl;
         plan.step();
     }
 }
@@ -322,6 +317,23 @@ vector<BaseAction *> Simulation::getActionsLog()
 
 void Simulation::copyFrom(const Simulation &other)
 {
+    // Clear existing data
+    for (auto action : actionsLog)
+    {
+        delete action;
+    }
+    actionsLog.clear();
+
+    for (auto settlement : settlements)
+    {
+        delete settlement;
+    }
+    settlements.clear();
+
+    plans.clear();
+    facilitiesOptions.clear();
+
+    // Copy data from the other object
     isRunning = other.isRunning;
     planCounter = other.planCounter;
     for (const auto action : other.actionsLog)
@@ -332,12 +344,13 @@ void Simulation::copyFrom(const Simulation &other)
     {
         settlements.push_back(new Settlement(*settlement));
     }
-    plans = other.plans;
-
-    facilitiesOptions.clear();
-    for (FacilityType facility : other.facilitiesOptions)
+    for (const auto &facility : other.facilitiesOptions)
     {
         facilitiesOptions.push_back(facility);
+    }
+    for (const auto &plan : other.plans)
+    {
+        plans.push_back(Plan(plan, getSettlement(plan.getSettlement().getName()), facilitiesOptions));
     }
 }
 

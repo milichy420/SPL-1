@@ -4,25 +4,35 @@ using namespace std;
 #include <utility> // For std::move
 
 Plan::Plan(const int planId, const Settlement &settlement, SelectionPolicy *selectionPolicy, const vector<FacilityType> &facilityOptions)
-    : plan_id(planId), settlement(settlement), selectionPolicy(selectionPolicy), facilityOptions(facilityOptions), status(PlanStatus::AVALIABLE), life_quality_score(0), economy_score(0), environment_score(0) {}
+    : plan_id(planId), settlement(settlement), selectionPolicy(selectionPolicy), status(PlanStatus::AVALIABLE), facilities(), underConstruction(), facilityOptions(facilityOptions), life_quality_score(0), economy_score(0), environment_score(0) {}
 
 // Destructor
 Plan::~Plan()
 {
     delete selectionPolicy;
+
     for (auto facility : facilities)
     {
         delete facility;
     }
+    facilities.clear();
     for (auto facility : underConstruction)
     {
         delete facility;
     }
+    underConstruction.clear();
 }
 
 // Copy constructor
 Plan::Plan(const Plan &other)
-    : plan_id(other.plan_id), settlement(other.settlement), facilityOptions(other.facilityOptions)
+    : plan_id(other.plan_id), settlement(other.settlement), selectionPolicy(other.selectionPolicy->clone()), status(other.status), facilities(), underConstruction(), facilityOptions(other.facilityOptions), life_quality_score(other.life_quality_score), economy_score(other.economy_score), environment_score(other.environment_score)
+{
+    copyFrom(other);
+}
+
+// Copy counstructor 2
+Plan::Plan(const Plan &other, const Settlement &settlement, const vector<FacilityType> &facilityOptions)
+    : plan_id(other.plan_id), settlement(settlement), selectionPolicy(other.selectionPolicy->clone()), status(other.status), facilities(), underConstruction(), facilityOptions(facilityOptions), life_quality_score(other.life_quality_score), economy_score(other.economy_score), environment_score(other.environment_score)
 {
     copyFrom(other);
 }
@@ -38,10 +48,12 @@ Plan &Plan::operator=(const Plan &other)
         {
             delete facility;
         }
+        facilities.clear();
         for (auto facility : underConstruction)
         {
             delete facility;
         }
+        underConstruction.clear();
         // Copy from other
         copyFrom(other);
     }
@@ -50,7 +62,7 @@ Plan &Plan::operator=(const Plan &other)
 
 // Move constructor
 Plan::Plan(Plan &&other) noexcept
-    : plan_id(other.plan_id), settlement(other.settlement), facilityOptions(other.facilityOptions)
+    : plan_id(other.plan_id), settlement(other.settlement), selectionPolicy(other.selectionPolicy), status(other.status), facilities(), underConstruction(), facilityOptions(other.facilityOptions), life_quality_score(other.life_quality_score), economy_score(other.economy_score), environment_score(other.environment_score)
 {
     moveFrom(std::move(other));
 }
@@ -62,14 +74,17 @@ Plan &Plan::operator=(Plan &&other) noexcept
     {
         // Clean up existing resources
         delete selectionPolicy;
+
         for (auto facility : facilities)
         {
             delete facility;
         }
+        facilities.clear();
         for (auto facility : underConstruction)
         {
             delete facility;
         }
+        underConstruction.clear();
         // Move from other
         moveFrom(std::move(other));
     }
@@ -113,12 +128,21 @@ void Plan::step()
         }
     }
 
-    for (auto &facility : underConstruction)
+    for (auto it = underConstruction.begin(); it != underConstruction.end();)
     {
-        facility->step();
-        if (facility->getStatus() == FacilityStatus::OPERATIONAL)
+        (*it)->step();
+        if ((*it)->getStatus() == FacilityStatus::OPERATIONAL)
         {
-            moveFacilityToOperational(facility);
+            facilities.push_back(*it);
+            it = underConstruction.erase(it);
+
+            life_quality_score += (*it)->getLifeQualityScore();
+            economy_score += (*it)->getEconomyScore();
+            environment_score += (*it)->getEnvironmentScore();
+        }
+        else
+        {
+            ++it;
         }
     }
     if (underConstruction.size() >= static_cast<unsigned int>(settlement.getType()))
@@ -160,7 +184,6 @@ const vector<Facility *> &Plan::getFacilities() const
 void Plan::addFacility(Facility *facility)
 {
     facilities.push_back(facility);
-    // Update scores based on the new facility
 }
 
 const string Plan::toString() const
@@ -183,50 +206,8 @@ const Settlement Plan::getSettlement() const
     return settlement;
 }
 
-void Plan::moveFacilityToUnderConstruction(Facility *facility)
-{
-    underConstruction.push_back(facility);
-    int index = 0;
-    for (Facility *current_facility : facilities)
-    {
-        if (facility == current_facility)
-        {
-            facilities.erase(facilities.begin() + index);
-        }
-        index++;
-    }
-
-    // Move a facility from operational to under construction
-    // Update scores accordingly
-}
-
-void Plan::moveFacilityToOperational(Facility *facility)
-{
-    facilities.push_back(facility);
-    int index = 0;
-    for (Facility *current_facility : underConstruction)
-    {
-        if (facility == current_facility)
-        {
-            underConstruction.erase(underConstruction.begin() + index);
-        }
-        index++;
-    }
-    life_quality_score += facility->getLifeQualityScore();
-    economy_score += facility->getEconomyScore();
-    environment_score += facility->getEnvironmentScore();
-
-    // Move a facility from under construction to operational
-    // Update scores accordingly
-}
-
 void Plan::copyFrom(const Plan &other)
 {
-    selectionPolicy = other.selectionPolicy->clone();
-    status = other.status;
-    life_quality_score = other.life_quality_score;
-    economy_score = other.economy_score;
-    environment_score = other.environment_score;
     for (const auto facility : other.facilities)
     {
         facilities.push_back(new Facility(*facility));
@@ -239,11 +220,6 @@ void Plan::copyFrom(const Plan &other)
 
 void Plan::moveFrom(Plan &&other) noexcept
 {
-    selectionPolicy = other.selectionPolicy;
-    status = other.status;
-    life_quality_score = other.life_quality_score;
-    economy_score = other.economy_score;
-    environment_score = other.environment_score;
     facilities = std::move(other.facilities);
     underConstruction = std::move(other.underConstruction);
 

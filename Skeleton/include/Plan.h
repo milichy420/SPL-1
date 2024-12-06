@@ -15,11 +15,12 @@ class Plan
 {
 public:
     Plan(const int planId, const Settlement &settlement, SelectionPolicy *selectionPolicy, const vector<FacilityType> &facilityOptions);
-    ~Plan();                                // Destructor
-    Plan(const Plan &other);                // Copy constructor
-    Plan &operator=(const Plan &other);     // Copy assignment operator
-    Plan(Plan &&other) noexcept;            // Move constructor
-    Plan &operator=(Plan &&other) noexcept; // Move assignment operator
+    ~Plan();                                                                                            // Destructor
+    Plan(const Plan &other);                                                                            // Copy constructor
+    Plan(const Plan &other, const Settlement &settlement, const vector<FacilityType> &facilityOptions); // Copy constructor 2
+    Plan &operator=(const Plan &other);                                                                 // Copy assignment operator
+    Plan(Plan &&other) noexcept;                                                                        // Move constructor
+    Plan &operator=(Plan &&other) noexcept;                                                             // Move assignment operator
 
     const int getlifeQualityScore() const;
     const int getEconomyScore() const;
