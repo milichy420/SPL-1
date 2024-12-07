@@ -27,8 +27,8 @@ protected:
     const string &getErrorMsg() const;
 
 private:
-    string errorMsg;
     ActionStatus status;
+    string errorMsg;
 };
 
 class SimulateStep : public BaseAction
