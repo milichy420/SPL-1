@@ -7,7 +7,7 @@
 #include "Auxiliary.h"
 #include <utility>
 
-Simulation::Simulation(const string &configFilePath) : isRunning(false), planCounter(0), actionsLog(),plans(),settlements(),facilitiesOptions()
+Simulation::Simulation(const string &configFilePath) : isRunning(false), planCounter(0), actionsLog(), plans(), settlements(), facilitiesOptions()
 {
     // Load configuration from file
     std::ifstream configFile(configFilePath);
@@ -83,7 +83,7 @@ Simulation::~Simulation()
 }
 
 // Copy constructor
-Simulation::Simulation(const Simulation &other)  : isRunning(false), planCounter(0), actionsLog(),plans(),settlements(),facilitiesOptions()
+Simulation::Simulation(const Simulation &other) : isRunning(false), planCounter(0), actionsLog(), plans(), settlements(), facilitiesOptions()
 {
     copyFrom(other);
 }
@@ -100,7 +100,7 @@ Simulation &Simulation::operator=(const Simulation &other)
 }
 
 // Move constructor
-Simulation::Simulation(Simulation &&other) noexcept  : isRunning(false), planCounter(0), actionsLog(),plans(),settlements(),facilitiesOptions()
+Simulation::Simulation(Simulation &&other) noexcept : isRunning(false), planCounter(0), actionsLog(), plans(), settlements(), facilitiesOptions()
 {
     moveFrom(std::move(other));
 }
