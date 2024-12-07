@@ -12,7 +12,7 @@ const FacilityType &NaiveSelection::selectFacility(const vector<FacilityType> &f
     {
         throw std::runtime_error("No facilities available for selection.");
     }
-    lastSelectedIndex++;
+    lastSelectedIndex = (lastSelectedIndex + 1) % facilitiesOptions.size();
     return facilitiesOptions[lastSelectedIndex];
 }
 
